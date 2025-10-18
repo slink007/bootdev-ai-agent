@@ -23,8 +23,17 @@ def read_file_content_tests():
     print("")
     print(Helpers.get_file_content("calculator", "pkg/does_not_exist.py"))
 
+def write_file_content_tests():
+    print(Helpers.write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum"))
+    print("")
+    print(Helpers.write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet"))
+    print("")
+    print(Helpers.write_file("calculator", "/tmp/temp.txt", "this should not be allowed"))
+
 
 if __name__ == "__main__":
-    read_files_tests()
-    print("\n")
-    read_file_content_tests()
+    # read_files_tests()
+    # print("\n")
+    # read_file_content_tests()
+    # print("\n")
+    write_file_content_tests()
