@@ -30,10 +30,22 @@ def write_file_content_tests():
     print("")
     print(Helpers.write_file("calculator", "/tmp/temp.txt", "this should not be allowed"))
 
+def execute_code_tests():
+    print(Helpers.run_python_file("calculator", "main.py"))
+    print("")
+    print(Helpers.run_python_file("calculator", "main.py", ["3 + 5"]))
+    print("")
+    print(Helpers.run_python_file("calculator", "../main.py"))
+    print("")
+    print(Helpers.run_python_file("calculator", "nonexistent.py"))
+    print("")
+    print(Helpers.run_python_file("calculator", "lorem.txt"))
+
 
 if __name__ == "__main__":
     # read_files_tests()
     # print("\n")
     # read_file_content_tests()
     # print("\n")
-    write_file_content_tests()
+    # write_file_content_tests()
+    execute_code_tests()
