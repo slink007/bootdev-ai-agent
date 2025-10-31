@@ -1,19 +1,21 @@
 import os
+from .misc import is_subdirectory
+from google.genai import types
 
-MAX_CHARS = 10000
 
-def is_subdirectory(parent, path):
-    """
-    Check if 'path' is a subdirectory (or file within a subdirectory) of 'parent'.
-    Uses real absolute paths for safety.
-    """
-    try:
-        parent_path = os.path.realpath(parent)
-        target_path = os.path.realpath(os.path.join(parent, path))
-        return os.path.commonpath([parent_path]) == os.path.commonpath([parent_path, target_path])
-    except ValueError:
-        # Happens if paths are on different drives (Windows)
-        return False
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory to list files from, relative to the working directory. If not provided, lists files in the working directory itself.",
+            ),
+        },
+    ),
+)
 
 
 def get_files_info(working_directory, directory="."):
