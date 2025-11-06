@@ -1,5 +1,27 @@
 import os
 from .misc import is_subdirectory
+from google.genai import types
+
+
+schema_write_file_content = types.FunctionDeclaration(
+    name="write_file_content",
+    description="Write contents to the specified file, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The file to write to.",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="The content to write to the file.",
+            )
+        },
+    ),
+)
+
+
 
 
 def write_file_content(working_directory, file_path, content):

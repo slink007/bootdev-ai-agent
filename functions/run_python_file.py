@@ -2,6 +2,31 @@ import os
 import subprocess
 import sys
 from .misc import is_subdirectory
+from google.genai import types
+
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Run the specified file.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The file to execute.",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="Arguments to pass to the file.",
+                    items=types.Schema(
+                        type=types.Type.STRING,
+                        description="A single argument passed to the file."
+                    ),
+            ),
+        },
+    ),
+)
+
 
 
 def run_python_file(working_directory, file_path, args=[]):
