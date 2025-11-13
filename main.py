@@ -74,22 +74,25 @@ All paths you provide should be relative to the working directory. You do not ne
 
     prompt = ""
     response = ""
+    messages = []
     
     try:
         prompt = sys.argv[1]
-        #prompt = "Run tests.py using run_python_file. Do not ask questions."
-        messages = [types.Content(role="user", parts=[types.Part(text=prompt)]),]
+        messages = [types.Content(role="user", 
+            parts=[types.Part(text=prompt)]),]
         response = client.models.generate_content(
             model='gemini-2.0-flash-001',
             contents=messages,
             config=types.GenerateContentConfig(
                 tools=[available_functions],
-                #system_instruction=system_prompt))
                 system_instruction=prompt))
     except IndexError:
         print("Error: no prompt provided")
-        exit(1)
-    
+        sys.exit(1)
+    except genai.errors.ClientError:
+        print("Google's genai is too busy at the moment. This is not your fault.")
+        sys.exit(1)
+
     if "--verbose" in sys.argv:
         print(f"User prompt: {prompt}")
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
@@ -100,16 +103,20 @@ All paths you provide should be relative to the working directory. You do not ne
         # Iterate over each function call part
         for function_call_part in response.function_calls:
             # Access the name and args
-            # print(f"Calling function: {function_call_part.name}({function_call_part.args})")
             call_result = call_function(function_call_part, verbose="--verbose" in sys.argv)
             print(call_result.parts[0].function_response.response['result'])
     else:
         # No function calls, just print the text
         print(response.text)
+    
+    # Check the candidates property of the response
+    if response.candidates:
+        for candidate in response.candidates:
+            # content = candidate.content
+            text_part = candidate.content.parts[0].text
+            print(text_part)
+
 
 
 if __name__ == "__main__":
     main()
-
-
-
