@@ -112,9 +112,12 @@ All paths you provide should be relative to the working directory. You do not ne
     # Check the candidates property of the response
     if response.candidates:
         for candidate in response.candidates:
-            # content = candidate.content
-            text_part = candidate.content.parts[0].text
-            print(text_part)
+            part = types.Part(text=candidate.content.parts[0].text)
+            new_msg = types.Content(role="user", parts=[types.Part(text=candidate.content.parts[0].text),])
+            # print(part)
+            # print(candidate)
+            # text_part = candidate.content.parts[0].text
+            # print(text_part)
 
 
 
