@@ -78,47 +78,50 @@ All paths you provide should be relative to the working directory. You do not ne
     
     try:
         prompt = sys.argv[1]
-        messages = [types.Content(role="user", 
-            parts=[types.Part(text=prompt)]),]
-        response = client.models.generate_content(
-            model='gemini-2.0-flash-001',
-            contents=messages,
-            config=types.GenerateContentConfig(
-                tools=[available_functions],
-                system_instruction=prompt))
+        messages = [types.Content(role="user", parts=[types.Part(text=prompt)]),]
+        loop_count = 20
+        while loop_count > 0:
+            try:
+                response = client.models.generate_content(
+                model='gemini-2.0-flash-001',
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions],
+                    system_instruction=prompt))
+            except genai.errors.ClientError:
+                print("Google's genai is too busy at the moment. This is not your fault.")
+                sys.exit(1)
+            
+            # Check the candidates property of the response
+            if response.candidates:
+                for candidate in response.candidates:
+                    # part = types.Part(text=candidate.content.parts[0].text)
+                    messages.append(types.Content(role="model", parts=[types.Part(text=candidate.content.parts[0].text),]))
+
+            # Check if there are any function calls
+            if response.function_calls:
+                # Iterate over each function call part
+                for function_call_part in response.function_calls:
+                    # Access the name and args
+                    call_result = call_function(function_call_part, verbose="--verbose" in sys.argv)
+                    messages.append(types.Content(role="user", parts=[types.Part(text=call_result.parts[0].function_response.response['result']),]))
+            else:
+                if response.text is not None:
+                    break
+            
+            loop_count -= 1
+                
     except IndexError:
         print("Error: no prompt provided")
         sys.exit(1)
-    except genai.errors.ClientError:
-        print("Google's genai is too busy at the moment. This is not your fault.")
-        sys.exit(1)
-
+    
     if "--verbose" in sys.argv:
         print(f"User prompt: {prompt}")
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")        
-
-    # Check if there are any function calls
-    if response.function_calls:
-        # Iterate over each function call part
-        for function_call_part in response.function_calls:
-            # Access the name and args
-            call_result = call_function(function_call_part, verbose="--verbose" in sys.argv)
-            print(call_result.parts[0].function_response.response['result'])
-    else:
-        # No function calls, just print the text
-        print(response.text)
     
-    # Check the candidates property of the response
-    if response.candidates:
-        for candidate in response.candidates:
-            part = types.Part(text=candidate.content.parts[0].text)
-            new_msg = types.Content(role="user", parts=[types.Part(text=candidate.content.parts[0].text),])
-            # print(part)
-            # print(candidate)
-            # text_part = candidate.content.parts[0].text
-            # print(text_part)
-
+    print(response.text)
+    
 
 
 if __name__ == "__main__":
