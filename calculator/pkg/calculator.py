@@ -1,4 +1,5 @@
-# calculator.py
+
+import sys
 
 class Calculator:
     def __init__(self):
@@ -26,6 +27,7 @@ class Calculator:
         operators = []
 
         for token in tokens:
+            print(f"Token: {token}, Values: {values}, Operators: {operators}")
             if token in self.operators:
                 while (
                     operators
@@ -53,9 +55,23 @@ class Calculator:
             return
 
         operator = operators.pop()
+        print(f"Applying operator: {operator}, Values: {values}")
         if len(values) < 2:
             raise ValueError(f"not enough operands for operator {operator}")
 
         b = values.pop()
         a = values.pop()
         values.append(self.operators[operator](a, b))
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        expression = sys.argv[1]
+        calculator = Calculator()
+        try:
+            result = calculator.evaluate(expression)
+            print(result)
+        except Exception as e:
+            print(f"Error: {e}")
+    else:
+        print("Please provide an expression as a command-line argument.")
